@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+
+
+{% include 'nav.html' %}
+
+
+    <div class="container">
+        <h3>👋 {{ user.first_name }} {{ user.last_name }}</h3>
+        <p>Проходи задания и знакомься с компанией!</p>
+    </div>
+
+    <div class="container">
+        {% for q in quizzes %}
+        <div class="card shadow-sm" style="margin-bottom: 8px">
+            <div class="card-body">
+                <h4 class="card-title">{{ q.title }}</h4><a class="card-link" href="{% url 'quiz' q.pk %}">Пройти</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+
+{% endblock %}

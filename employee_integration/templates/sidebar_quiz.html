@@ -1,0 +1,33 @@
+<div class="col-md-3 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="h4">
+                        {% if is_done %}
+                        Прошли ✔
+                        {% else %}
+                        Не прошли ❌
+                        {% endif %}
+                    </div>
+                    {% if is_done %}
+                    <div class="h6 text-muted">
+                        {% if is_correct %}
+                        Решено <span style="color: #16c60c">верно</span>
+                        {% else %}
+                        Решено <span style="color: red">не верно</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                <ul class="list-group list-group-flush">
+
+                    <li class="list-group-item">
+                        <div class="h6 text-muted">
+                            Всего прошли: {{ count_of_people_done }} человек
+                            <br>
+                            Верно решили: {{ percent_of_done_correct }}%
+                        </div>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
