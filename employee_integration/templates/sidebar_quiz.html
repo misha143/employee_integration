@@ -1,33 +1,66 @@
 <div class="col-md-3 mb-3">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <div class="h4">
-                        {% if is_done %}
-                        Прошли ✔
-                        {% else %}
-                        Не прошли ❌
-                        {% endif %}
-                    </div>
-                    {% if is_done %}
-                    <div class="h6 text-muted">
-                        {% if is_correct %}
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="h4">
+                {% if is_done %}
+                    Прошли ✔
+                {% else %}
+                    Не прошли ❌
+                {% endif %}
+            </div>
+            {% if is_done %}
+                <div class="h6 text-muted">
+                    {% if is_correct %}
                         Решено <span style="color: #16c60c">верно</span>
-                        {% else %}
+                    {% else %}
                         Решено <span style="color: red">не верно</span>
+                    {% endif %}
+                    <br>Ваш ответ: {{ user_answer }}
+                </div>
+            {% endif %}
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                <div class="h6 text-muted">
+
+                    {% if count_of_people_done == 0 %}
+                        Никто не прошёл квест.<br>Вы будете первым.
+                    {% else %}
+                        Всего {% if count_of_people_done == 1 %}прошёл{% else %}прошли{% endif %} {{ count_of_people_done }}
+                        {% if count_of_people_done|get_digit:1 == 1 and count_of_people_done != 11 %}
+                            человек
+                        {% elif count_of_people_done|get_digit:1 == 0 or count_of_people_done|get_digit:1 >= 5 %}
+                            человек
+                        {% elif count_of_people_done >= 11 and count_of_people_done <= 19 %}
+                            человек
+                        {% else %}
+                            человека
                         {% endif %}
-                    </div>
+                        <br>
+
+                        {% if percent_of_done_correct == 0 %}
+                            Все решили не верно
+                        {% elif percent_of_done_correct == 100 %}
+                            Все решили верно
+                        {% else %}
+                            Верно решили {{ percent_of_done_correct }}%
+                        {% endif %}
+
                     {% endif %}
                 </div>
-                <ul class="list-group list-group-flush">
-
-                    <li class="list-group-item">
-                        <div class="h6 text-muted">
-                            Всего прошли: {{ count_of_people_done }} человек
+            </li>
+            {% if count_of_people_done > 0 %}
+                <li class="list-group-item">
+                    <div class="h6 text-muted">
+                        Уже прошли:
+                        <br>
+                        {% for group_name, cnt_people in common_groups %}
+                            {{ group_name }}: {{ cnt_people }} чел.
                             <br>
-                            Верно решили: {{ percent_of_done_correct }}%
-                        </div>
-                    </li>
-
-                </ul>
-            </div>
-        </div>
+                        {% endfor %}
+                    </div>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>

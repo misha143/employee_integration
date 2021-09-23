@@ -4,7 +4,7 @@
 {% block content %}
 
 
-{% include 'nav.html' %}
+    {% include 'nav.html' %}
 
 
     <div class="container">
@@ -14,11 +14,11 @@
 
     <div class="container">
         {% for q in quizzes %}
-        <div class="card shadow-sm" style="margin-bottom: 8px">
-            <div class="card-body">
-                <h4 class="card-title">{{ q.title }}</h4><a class="card-link" href="{% url 'quiz' q.pk %}">Пройти</a>
+            <div class="card shadow-sm" style="margin-bottom: 8px">
+                <div class="card-body">
+                    <h4 class="card-title">{{ q.title }}</h4><a class="card-link" href="{% url 'quiz' q.pk %}">Пройти</a>
+                </div>
             </div>
-        </div>
         {% endfor %}
     </div>
 
