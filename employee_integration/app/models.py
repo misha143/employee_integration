@@ -4,6 +4,13 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
+def get_first_last_name(self):
+    return self.first_name + ' ' + self.last_name
+
+
+User.add_to_class("__str__", get_first_last_name)
+
+
 class Question(models.Model):
     title = models.CharField(max_length=200, verbose_name="Заголовок")
     text = models.TextField(verbose_name="Описание вопроса")
@@ -14,8 +21,6 @@ class Question(models.Model):
     video_yt_url = models.CharField(blank=True, max_length=200, verbose_name="Ссылка на видео",
                                     help_text="Вставьте идентификатор видео с YouTube. Пример: vX3fXef2F4M")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Вопрос создан")
-    valid_until = models.DateTimeField(verbose_name="Время окончания теста",
-                                       help_text="До какого времени квест можно проходить?")
 
     class Meta:
         ordering = ['-created']
@@ -44,7 +49,9 @@ class Result(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, verbose_name="Вопрос")
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
     is_correct = models.BooleanField(default=False, verbose_name="Правильно ответил?")
-    answer = models.ForeignKey(Answer, on_delete=models.CASCADE, verbose_name="Ответ пользователя", blank=True, null=True)
+    answer = models.ForeignKey(Answer, on_delete=models.CASCADE, verbose_name="Ответ пользователя", blank=True,
+                               null=True)
+    time_result_done = models.DateTimeField(verbose_name="Когда прошёл тест?", auto_now_add=True, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Результат'
@@ -56,4 +63,3 @@ class Result(models.Model):
 
     def __str__(self):
         return f"{self.question}"
-

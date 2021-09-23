@@ -9,7 +9,16 @@
 
     <div class="container">
         <h3>👋 {{ user.first_name }} {{ user.last_name }}</h3>
+        {% if user.is_staff %}
+
+        <p style="margin-top: 1rem">
+        <a class="btn btn-warning btn-lg btn-block" href="/admin/" role="button"><i class="bi bi-box-arrow-in-right"></i> Перейти в админ-панель</a>
+        <a class="btn btn-dark btn-lg btn-block" href="{% url 'get_csv' %}" role="button"><i class="bi bi-download"></i> Скачать данные о прохождении квестов</a>
+        <a class="btn btn-primary btn-lg btn-block" href="/admin/app/question/add/" role="button"><i class="bi bi-plus"></i> Добавить квест</a>
+        </p>
+        {% else %}
         <p>Проходи задания и знакомься с компанией!</p>
+        {% endif %}
     </div>
 
     <div class="container">

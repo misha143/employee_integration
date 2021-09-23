@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from datetime import datetime
 import csv
 from collections import Counter
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 
 import telegram
 
@@ -68,6 +68,7 @@ def quiz_view(request, pk_quiz):
         "count_of_people_done": count_of_people_done,
         "percent_of_done_correct": percent_of_done_correct,
         "common_groups": common_groups.items(),
+        "pk_quiz": pk_quiz
     })
 
 
@@ -89,24 +90,29 @@ def quiz_pass(request, pk_quiz, pk_ans):
 
 @login_required
 def get_csv(request):
-    now = datetime.now().strftime("%d.%m.%Y_%H.%M.%S")
-    response = HttpResponse(
-        content_type='text/csv',
-        headers={'Content-Disposition': f'attachment; filename="Results_{now}.csv"'},
-    )
+    if request.user.is_staff:
+        now = datetime.now().strftime("%d.%m.%Y_%H.%M.%S")
+        response = HttpResponse(
+            content_type='text/csv',
+            headers={'Content-Disposition': f'attachment; filename="Results_{now}.csv"'},
+        )
 
-    writer = csv.writer(response)
+        writer = csv.writer(response)
 
-    data = Result.objects.all()
-    writer.writerow(['Имя', 'Фамилия', 'Подразделение', 'Вопрос', 'Ответ', 'Ответ правильный?'])
-    for result in data:
-        group_name = ''
-        for group in result.user.groups.all():
-            group_name = group.name
-        result_correct = 0
-        if result.is_correct:
-            result_correct = 1
+        data = Result.objects.all()
         writer.writerow(
-            [result.user.first_name, result.user.last_name, group_name, result.question, result.answer, result_correct])
+            ['Имя', 'Фамилия', 'Подразделение', 'Вопрос', 'Ответ', 'Ответ правильный?', 'Когда прошёл тест?'])
+        for result in data:
+            group_name = ''
+            for group in result.user.groups.all():
+                group_name = group.name
+            result_correct = 0
+            if result.is_correct:
+                result_correct = 1
+            writer.writerow(
+                [result.user.first_name, result.user.last_name, group_name, result.question, result.answer,
+                 result_correct, result.time_result_done])
 
-    return response
+        return response
+    else:
+        return HttpResponseNotFound("Экспорт данных может делать только администратор")

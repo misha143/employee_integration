@@ -8,7 +8,7 @@ class AnswerInline(admin.TabularInline):
 
 
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ("title", "created", "valid_until")
+    list_display = ("title", "created")
     search_fields = ("title",)
     list_filter = ("created",)
     inlines = [AnswerInline]
@@ -20,8 +20,8 @@ class AnswerAdmin(admin.ModelAdmin):
 
 
 class ResultAdmin(admin.ModelAdmin):
-    list_display = ("question", "user", "answer", "is_correct")
-
+    list_display = ("question", "user", "answer", "is_correct", "time_result_done")
+    list_filter = ("question",)
 
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Answer, AnswerAdmin)
