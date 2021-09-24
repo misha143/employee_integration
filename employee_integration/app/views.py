@@ -135,3 +135,19 @@ def get_csv(request):
         return response
     else:
         return HttpResponseNotFound("Экспорт данных может делать только администратор")
+
+
+# def send_emails_to_complete_quiz(request):
+#     all_users = User.objects.all()
+#     all_questions = Question.objects.all()
+#
+#     emails = []
+#
+#     for u in all_users:
+#         for q in all_questions:
+#             if not Result.objects.filter(question=q, user=u).exists():
+#                 emails.append(u.email)
+#                 break
+#
+#     print(emails)
+#     return HttpResponse("Ok")
