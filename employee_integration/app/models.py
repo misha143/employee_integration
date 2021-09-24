@@ -51,7 +51,7 @@ class Result(models.Model):
     is_correct = models.BooleanField(default=False, verbose_name="Правильно ответил?")
     answer = models.ForeignKey(Answer, on_delete=models.CASCADE, verbose_name="Ответ пользователя", blank=True,
                                null=True)
-    time_result_done = models.DateTimeField(verbose_name="Когда прошёл тест?", auto_now_add=True, blank=True, null=True)
+    time_result_done = models.DateTimeField(verbose_name="Когда прошёл тест? (UTC+5)", auto_now_add=True, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Результат'

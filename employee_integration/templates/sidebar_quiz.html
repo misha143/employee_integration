@@ -3,9 +3,12 @@
         <div class="card-body">
             <div class="h4">
                 {% if is_done %}
-                    Прошли ✔
+                    Прошли {% if is_correct %}<i class="bi bi-emoji-smile-upside-down" style="color: #16c60c"></i>{% else %}<i class="bi bi-emoji-smile" style="color: #6c757d"></i>{% endif %}
+<!--                ✅-->
+<!--                ✔-->
                 {% else %}
-                    Не прошли ❌
+                    Не прошли <i class="bi bi-emoji-neutral" style="color: grey"></i>
+<!--                ❌-->
                 {% endif %}
             </div>
             {% if is_done %}
@@ -13,7 +16,7 @@
                     {% if is_correct %}
                         Решено <span style="color: #16c60c">верно</span>
                     {% else %}
-                        Решено <span style="color: red">не верно</span>
+                        Решено не верно
                     {% endif %}
                     <br>Ваш ответ: {{ user_answer }}
                 </div>

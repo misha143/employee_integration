@@ -5,13 +5,13 @@
     <div class="container">
         <h3>👋 {{ user.first_name }} {{ user.last_name }}</h3>
         {% if user.is_staff %}
-        <p style="margin-top: 1rem">
-        <a class="btn btn-primary btn-lg btn-block" href="/admin/app/question/{{ pk_quiz }}/change/" role="button"><i class="bi bi-brush"></i> Редактировать квест</a>
-        <a class="btn btn-success btn-lg btn-block" href="/admin/app/result/?question__id__exact={{ pk_quiz }}" role="button"><i class="bi bi-bar-chart"></i> Результаты квеста</a>
-        <a class="btn btn-danger btn-lg btn-block" href="/admin/app/question/{{ pk_quiz }}/delete/" role="button"><i class="bi bi-trash"></i> Удалить квест</a>
-        </p>
+            <p style="margin-top: 1rem">
+                <a class="btn btn-primary btn-lg btn-block" href="/admin/app/question/{{ pk_quiz }}/change/" role="button"><i class="bi bi-brush"></i> Редактировать квест</a>
+                <a class="btn btn-success btn-lg btn-block" href="/admin/app/result/?question__id__exact={{ pk_quiz }}" role="button"><i class="bi bi-bar-chart"></i> Результаты квеста</a>
+                <a class="btn btn-danger btn-lg btn-block" href="/admin/app/question/{{ pk_quiz }}/delete/" role="button"><i class="bi bi-trash"></i> Удалить квест</a>
+            </p>
         {% else %}
-        <p>Проходи задания и знакомься с компанией!</p>
+            <p>Проходи задания и знакомься с компанией!</p>
         {% endif %}
     </div>
     <div class="container">
@@ -45,11 +45,22 @@
                         {% if is_done %}
                             <br><br>
                             <div class="alert alert-info" role="alert">
-                                {{ quiz.additional_information }}
+                                <i class="bi bi-info-circle"></i> {{ quiz.additional_information }}
                             </div>
                         {% endif %}
                     </div>
                 </div>
+                {% if is_done %}
+                    {% if quiz_advice|length != 0 %}
+                        <!--                Пройдите ещё-->
+                        <div class="card shadow-sm" style="margin-bottom: 8px">
+                            <div class="card-body">
+                                <h4 class="card-title">Пройдите ещё: {{ quiz_advice.0.title }}</h4><a class="card-link" href="{% url 'quiz' quiz_advice.0.pk %}">Пройти</a>
+                            </div>
+                        </div>
+
+                    {% endif %}
+                {% endif %}
             </div>
         </div>
     </div>

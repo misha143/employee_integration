@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import get_user_model
-from datetime import datetime
+from datetime import datetime, timedelta
 import csv
 from collections import Counter
 from django.http import HttpResponse, HttpResponseNotFound
@@ -18,10 +18,20 @@ User = get_user_model()
 
 @login_required
 def index(request):
-    quizzes = Question.objects.all()
+    quizzes = []
+    quizzes_done = []
+
+    all_quizzes = Question.objects.all()
+
+    for quiz in all_quizzes:
+        if Result.objects.filter(question=quiz, user__username=request.user.username).exists():
+            quizzes_done.append(quiz)
+        else:
+            quizzes.append(quiz)
 
     return render(request, 'index.html', {
-        "quizzes": quizzes
+        "quizzes": quizzes,
+        "quizzes_done": quizzes_done,
     })
 
 
@@ -59,6 +69,13 @@ def quiz_view(request, pk_quiz):
     dictt = dict(Counter(groups_list))
     common_groups = dict(sorted(dictt.items(), key=lambda item: item[1], reverse=True))
 
+    # Предлагаем пройти не пройденные квесты
+    all_quizzes = Question.objects.all()
+    quiz_advice = []
+    for q in all_quizzes:
+        if not Result.objects.filter(question=q, user__username=request.user.username).exists():
+            quiz_advice.append(q)
+
     return render(request, 'quiz.html', {
         "is_done": is_done,
         "is_correct": is_correct,
@@ -68,7 +85,8 @@ def quiz_view(request, pk_quiz):
         "count_of_people_done": count_of_people_done,
         "percent_of_done_correct": percent_of_done_correct,
         "common_groups": common_groups.items(),
-        "pk_quiz": pk_quiz
+        "pk_quiz": pk_quiz,
+        "quiz_advice": quiz_advice,
     })
 
 
@@ -101,7 +119,7 @@ def get_csv(request):
 
         data = Result.objects.all()
         writer.writerow(
-            ['Имя', 'Фамилия', 'Подразделение', 'Вопрос', 'Ответ', 'Ответ правильный?', 'Когда прошёл тест?'])
+            ['Имя', 'Фамилия', 'Подразделение', 'Вопрос', 'Ответ', 'Ответ правильный?', 'Когда прошёл тест? (UTC+5)'])
         for result in data:
             group_name = ''
             for group in result.user.groups.all():
@@ -109,9 +127,10 @@ def get_csv(request):
             result_correct = 0
             if result.is_correct:
                 result_correct = 1
+            time_done = result.time_result_done + timedelta(hours=5)
             writer.writerow(
                 [result.user.first_name, result.user.last_name, group_name, result.question, result.answer,
-                 result_correct, result.time_result_done])
+                 result_correct, time_done.strftime("%Y-%m-%d %H:%M:%S")])
 
         return response
     else:
