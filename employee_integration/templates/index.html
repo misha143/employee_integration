@@ -22,6 +22,11 @@
     </div>
 
     <div class="container">
+
+        {% if quizzes_done|length == 0 and quizzes|length == 0 %}
+        <h2>На сайте нет квестов.</h2>
+        {% endif %}
+
         {% if quizzes|length != 0 %}
             <h2>Пройдите:</h2>
             {% for q in quizzes %}
