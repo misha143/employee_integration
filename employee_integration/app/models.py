@@ -16,7 +16,7 @@ class Question(models.Model):
     text = models.TextField(verbose_name="Описание вопроса")
     additional_information = models.TextField(
         verbose_name="Дополнительная информация для пользователя после отправки ответа.")
-    image_url = models.CharField(blank=True, max_length=200, verbose_name="Ссылка на фото",
+    image_url = models.CharField(blank=False, max_length=200, verbose_name="Ссылка на фото",
                                  help_text="Загрузите на imgur.com и правым кликом по фото нажмите 'Копировать ссылку на изображение'. Вставьте ссылку. Пример: https://i.imgur.com/sRjy27f.jpg")
     video_yt_url = models.CharField(blank=True, max_length=200, verbose_name="Ссылка на видео",
                                     help_text="Вставьте идентификатор видео с YouTube. Пример: vX3fXef2F4M")
@@ -63,3 +63,19 @@ class Result(models.Model):
 
     def __str__(self):
         return f"{self.question}"
+
+
+class Quiz(models.Model):
+    title = models.CharField(max_length=200, verbose_name="Заголовок")
+    text = models.CharField(max_length=600, verbose_name="Описание квеста")
+    image_url = models.CharField(blank=False, max_length=200, verbose_name="Ссылка на фото",
+                                 help_text="Загрузите на imgur.com и правым кликом по фото нажмите 'Копировать ссылку на изображение'. Вставьте ссылку. Пример: https://i.imgur.com/sRjy27f.jpg")
+    created = models.DateTimeField(auto_now_add=True, verbose_name="Квест создан")
+    question = models.ManyToManyField(Question, verbose_name="Вопрос")
+
+    class Meta:
+        verbose_name = 'Квест'
+        verbose_name_plural = 'Квесты'
+
+    def __str__(self):
+        return self.title

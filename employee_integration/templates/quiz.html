@@ -1,67 +1,59 @@
 {% extends "base.html" %}
-{% block title %}{{ quiz }}{% endblock %}
+{% block title %}Квест "{{ quiz }}"{% endblock %}
+{% load static %}
+
 {% block content %}
+
+
     {% include 'nav.html' %}
+
+
     <div class="container">
-        <h3>👋 {{ user.first_name }} {{ user.last_name }}</h3>
+
+        <h3>Квест «‎{{ quiz }}»{% if percent_of_done == 100 %} <i class="bi bi-check-lg"></i>{% endif %}</h3>
+        <p>{{ quiz.text }}</p>
+
         {% if user.is_staff %}
+
             <p style="margin-top: 1rem">
-                <a class="btn btn-primary btn-lg btn-block" href="/admin/app/question/{{ pk_quiz }}/change/" role="button"><i class="bi bi-brush"></i> Редактировать квест</a>
-                <a class="btn btn-success btn-lg btn-block" href="/admin/app/result/?question__id__exact={{ pk_quiz }}" role="button"><i class="bi bi-bar-chart"></i> Результаты квеста</a>
-                <a class="btn btn-danger btn-lg btn-block" href="/admin/app/question/{{ pk_quiz }}/delete/" role="button"><i class="bi bi-trash"></i> Удалить квест</a>
+                <a class="btn btn-primary btn-lg btn-block" href="/admin/app/quiz/{{ quiz.pk }}/change/" role="button"><i class="bi bi-brush"></i> Редактировать квест</a>
+                <a class="btn btn-danger btn-lg btn-block" href="/admin/app/quiz/{{ quiz.pk }}/delete/" role="button"><i class="bi bi-trash"></i> Удалить квест</a>
             </p>
         {% else %}
-            <p>Проходи задания и знакомься с компанией!</p>
+
+
         {% endif %}
     </div>
-    <div class="container">
-        <div class="row">
-            {% include "sidebar_quiz.html" %}
-            <div class="col-md-9">
-                <div class="card mb-3 shadow-sm">
-                    {% if quiz.image_url %}
-                        <img class="card-img-top" src="{{ quiz.image_url }}" style="width: 100%; height: 10.9rem; object-fit: cover;">
-                    {% endif %}
-                    <div class="card-body">
-                        <h4 class="card-title">{{ quiz.title }}</h4>
-                        <p class="card-text">{{ quiz.text }}</p>
-                        {% if quiz.video_yt_url %}
-                            <iframe width="245" height="139" src="https://www.youtube.com/embed/{{ quiz.video_yt_url }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                            <br><br>
-                        {% endif %}
-                        {% if is_done %}
-                            <div class="btn-group-vertical">
-                                {% for ans in ans_list %}
-                                    <button type="button" class="btn {% if ans.correct %}btn-success{% else %}btn-danger{% endif %}" style="text-align: left" disabled>{{ ans.text }}</button>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            <div class="btn-group-vertical">
-                                {% for ans in ans_list %}
-                                    <a class="btn btn-light" href="{% url 'quiz_pass' quiz.pk ans.pk %}" role="button" style="text-align: left">{{ ans.text }}</a>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        {% if is_done %}
-                            <br><br>
-                            <div class="alert alert-info" role="alert">
-                                <i class="bi bi-info-circle"></i> {{ quiz.additional_information }}
-                            </div>
-                        {% endif %}
-                    </div>
+
+    <div class="container " style="margin-bottom: 1rem">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <p style="margin-bottom: 0.5rem">Прогресс по квесту:</p>
+
+                <div class="progress" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ percent_of_done }}%;" aria-valuenow="{{ percent_of_done }}" aria-valuemin="0" aria-valuemax="100">{{ percent_of_done }}%</div>
                 </div>
-                {% if is_done %}
-                    {% if quiz_advice|length != 0 %}
-                        <!--                Пройдите ещё-->
-                        <div class="card shadow-sm" style="margin-bottom: 8px">
-                            <div class="card-body">
-                                <h4 class="card-title">Пройдите ещё: {{ quiz_advice.0.title }}</h4><a class="card-link" href="{% url 'quiz' quiz_advice.0.pk %}">Пройти</a>
-                            </div>
-                        </div>
-                        <br>
-                    {% endif %}
-                {% endif %}
+
             </div>
         </div>
     </div>
+
+
+    <div class="container">
+
+
+        {% for q in quiz.question.all %}
+            <div class="card shadow-sm" style="margin-bottom: 1rem">
+                <img class="card-img-top" src="{{ q.image_url }}" style="width: 100%; height: 12rem; object-fit: cover;">
+                <div class="card-body">
+                    <h5 class="card-title">{{ q.title }}</h5>
+                    <a href="{% url 'question' quiz.pk q.pk %}" class="btn btn-outline-danger"><i class="bi bi-arrow-right"></i> Перейти к вопросу</a>
+                </div>
+            </div>
+        {% endfor %}
+
+
+    </div>
+
+
 {% endblock %}
