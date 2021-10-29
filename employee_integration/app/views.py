@@ -46,67 +46,104 @@ def quiz_view(request, pk_quiz):
     if questions_pass != 0:
         percent_of_done = round(questions_pass / questions_cnt * 100)
 
+    # пройденные / непройденные
+    done_questions = []
+    not_done_questions = []
+    for q in quiz.question.all():
+        if Result.objects.filter(question=q, user__username=request.user.username).exists():
+            done_questions.append(q)
+        else:
+            not_done_questions.append(q)
+
     return render(request, 'quiz.html', {
         'quiz': quiz,
+        'done_questions': done_questions,
+        'not_done_questions': not_done_questions,
         'percent_of_done': percent_of_done,
     })
 
 
 @login_required
 def question_view(request, pk_quiz, pk_question):
-    # проверка прошёл квест или нет
-    is_done = 0
-    is_correct = 0
-    user_answer = ''
-    if Result.objects.filter(question__pk=pk_question, user__username=request.user.username).exists():
-        is_done = 1
-        temp = Result.objects.get(question__pk=pk_question, user__username=request.user.username)
-        user_answer = temp.answer
-        if temp.is_correct:
-            is_correct = 1
+    if request.method == 'POST':
+        try:
+            # уникальные в связке
+            user = get_object_or_404(User, username=request.user.username)
+            question = get_object_or_404(Question, pk=pk_question)
+            ans = Answer.objects.create(text=request.POST['user_input_text'], question=question)
+            Result.objects.create(question=question, user=user, answer=ans)
+            bot.sendMessage(chat_id=386589423,
+                            text=f"{user.first_name} {user.last_name} ответил на вопрос.\n\nВопрос: {question}\n\nОтвет пользователя: {ans}\n\nВам вручную необходимо определить, правильный он или нет. Сделать это можно в админ-панеле.")
 
-    # получаем квиз и ответы
-    quiz = get_object_or_404(Quiz, pk=pk_quiz)
-    question = get_object_or_404(Question, pk=pk_question)
-    ans_list = Answer.objects.filter(question=question).all()
-
-    # сколько прошли, какой процент
-    data_results = Result.objects.filter(question__pk=pk_question).all()
-    count_of_people_done = len(data_results)
-    count_of_people_done_correct = len(Result.objects.filter(question__pk=pk_question, is_correct=True).all())
-    if count_of_people_done == 0:
-        percent_of_done_correct = 0
+        except:
+            pass
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
-        percent_of_done_correct = round(count_of_people_done_correct / count_of_people_done * 100)
+        # проверка прошёл квест или нет
+        is_done = 0
+        is_correct = 0
+        user_answer = ''
+        if Result.objects.filter(question__pk=pk_question, user__username=request.user.username).exists():
+            is_done = 1
+            temp = Result.objects.get(question__pk=pk_question, user__username=request.user.username)
+            user_answer = temp.answer
+            if temp.is_correct:
+                is_correct = 1
+            elif temp.is_correct is None:
+                is_correct = 2
 
-    # самый активный отдел
-    groups_list = []
-    for d in data_results:
-        for g in d.user.groups.all():
-            groups_list.append(str(g))
-    dictt = dict(Counter(groups_list))
-    common_groups = dict(sorted(dictt.items(), key=lambda item: item[1], reverse=True))
+        # получаем квиз и ответы
+        quiz = get_object_or_404(Quiz, pk=pk_quiz)
+        question = get_object_or_404(Question, pk=pk_question)
+        ans_list = Answer.objects.filter(question=question).all()
 
-    # Предлагаем пройти не пройденные квесты
-    all_question = Question.objects.all()
-    question_advice = []
-    for q in all_question:
-        if not Result.objects.filter(question=q, user__username=request.user.username).exists():
-            question_advice.append(q)
+        # сколько прошли, какой процент
+        data_results = Result.objects.filter(question__pk=pk_question).all()
+        count_of_people_done = len(data_results)
+        count_of_people_done_correct = len(Result.objects.filter(question__pk=pk_question, is_correct=True).all())
+        if count_of_people_done == 0:
+            percent_of_done_correct = 0
+        else:
+            percent_of_done_correct = round(count_of_people_done_correct / count_of_people_done * 100)
 
-    return render(request, 'question.html', {
-        "is_done": is_done,
-        "is_correct": is_correct,
-        "user_answer": user_answer,
-        "quiz": quiz,
-        "question": question,
-        "ans_list": ans_list,
-        "count_of_people_done": count_of_people_done,
-        "percent_of_done_correct": percent_of_done_correct,
-        "common_groups": common_groups.items(),
-        "pk_question": pk_question,
-        "question_advice": question_advice,
-    })
+        # самый активный отдел
+        groups_list = []
+        for d in data_results:
+            for g in d.user.groups.all():
+                groups_list.append(str(g))
+        dictt = dict(Counter(groups_list))
+        common_groups = dict(sorted(dictt.items(), key=lambda item: item[1], reverse=True))
+
+        # Предлагаем пройти не пройденные вопросы
+        all_question = quiz.question.all()
+        question_advice = []
+        for q in all_question:
+            if not Result.objects.filter(question=q, user__username=request.user.username).exists():
+                question_advice.append(q)
+
+        # Предлагаем пройти новый открытый квест
+
+        not_done_quiz = []
+        for q in Quiz.objects.all():
+            if not q.question.count() == Result.objects.filter(question__in=q.question.all(),
+                                                               user__username=request.user.username).count():
+                not_done_quiz.append(q)
+                break
+
+        return render(request, 'question.html', {
+            "is_done": is_done,
+            "is_correct": is_correct,
+            "user_answer": user_answer,
+            "quiz": quiz,
+            "question": question,
+            "ans_list": ans_list,
+            "count_of_people_done": count_of_people_done,
+            "percent_of_done_correct": percent_of_done_correct,
+            "common_groups": common_groups.items(),
+            "pk_question": pk_question,
+            "question_advice": question_advice,
+            "quiz_advice": not_done_quiz,
+        })
 
 
 @login_required
@@ -138,35 +175,53 @@ def get_csv(request):
         writer = csv.writer(response)
 
         data = Result.objects.all()
+        all_quizzes = Quiz.objects.all()
+
+
         writer.writerow(
-            ['Имя', 'Фамилия', 'Подразделение', 'Вопрос', 'Ответ', 'Ответ правильный?', 'Когда прошёл тест? (UTC+5)'])
+            ['Имя', 'Фамилия', 'Подразделение', 'Квест', 'Вопрос', 'Ответ', 'Ответ правильный?',
+             'Когда ответил на вопрос? (UTC+5)'])
         for result in data:
             group_name = ''
             for group in result.user.groups.all():
                 group_name = group.name
-            result_correct = 0
-            if result.is_correct:
-                result_correct = 1
+
+            quiz_name = ''
+            for q in all_quizzes:
+                if result.question in q.question.all():
+                    quiz_name = q.title
+                    break
+
+            result_correct = ''
+            if result.is_correct == True:
+                result_correct = 'Да'
+            elif result.is_correct == False:
+                result_correct = 'Нет'
+            else:
+                result_correct = 'Не оценено'
+
             time_done = result.time_result_done + timedelta(hours=5)
             writer.writerow(
-                [result.user.first_name, result.user.last_name, group_name, result.question, result.answer,
+                [result.user.first_name, result.user.last_name, group_name, quiz_name, result.question, result.answer,
                  result_correct, time_done.strftime("%Y-%m-%d %H:%M:%S")])
 
         return response
     else:
         return HttpResponseNotFound("Экспорт данных может делать только администратор")
 
-# def send_emails_to_complete_quiz(request):
-#     all_users = User.objects.all()
-#     all_questions = Question.objects.all()
-#
-#     emails = []
-#
-#     for u in all_users:
-#         for q in all_questions:
-#             if not Result.objects.filter(question=q, user=u).exists():
-#                 emails.append(u.email)
-#                 break
-#
-#     print(emails)
-#     return HttpResponse("Ok")
+def send_emails_to_complete_quiz(request):
+    
+    all_users = User.objects.all()
+    all_questions = Question.objects.all()
+
+    emails = []
+
+    for u in all_users:
+        for q in all_questions:
+            if not Result.objects.filter(question=q, user=u).exists():
+                emails.append(u.email)
+                break
+
+    print(emails)
+
+    return HttpResponse("Ok")

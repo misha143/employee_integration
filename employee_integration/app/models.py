@@ -16,6 +16,8 @@ class Question(models.Model):
     text = models.TextField(verbose_name="Описание вопроса")
     additional_information = models.TextField(
         verbose_name="Дополнительная информация для пользователя после отправки ответа.")
+    is_input_question = models.BooleanField(
+        verbose_name="Отметьте, если ответ на этот вопрос пользователь вводит сам, а не выбирает из «ответов». Потом вам придётся самому выбрать, правильно ли ответил пользователь на вопрос или нет.")
     image_url = models.CharField(blank=False, max_length=200, verbose_name="Ссылка на фото",
                                  help_text="Загрузите на imgur.com и правым кликом по фото нажмите 'Копировать ссылку на изображение'. Вставьте ссылку. Пример: https://i.imgur.com/sRjy27f.jpg")
     video_yt_url = models.CharField(blank=True, max_length=200, verbose_name="Ссылка на видео",
@@ -32,7 +34,7 @@ class Question(models.Model):
 
 
 class Answer(models.Model):
-    text = models.CharField(max_length=300, verbose_name="Текст ответа")
+    text = models.CharField(max_length=1000, verbose_name="Текст ответа")
     correct = models.BooleanField(default=False, verbose_name="Правильный?",
                                   help_text="Выберите 1 правильный ответ для 1 вопроса")
     question = models.ForeignKey(Question, verbose_name="Вопрос", on_delete=models.CASCADE)
@@ -48,10 +50,11 @@ class Answer(models.Model):
 class Result(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, verbose_name="Вопрос")
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
-    is_correct = models.BooleanField(default=False, verbose_name="Правильно ответил?")
+    is_correct = models.BooleanField(null=True, default=None, verbose_name="Правильно ответил?")
     answer = models.ForeignKey(Answer, on_delete=models.CASCADE, verbose_name="Ответ пользователя", blank=True,
                                null=True)
-    time_result_done = models.DateTimeField(verbose_name="Когда прошёл тест? (UTC+5)", auto_now_add=True, blank=True, null=True)
+    time_result_done = models.DateTimeField(verbose_name="Когда прошёл тест? (UTC+5)", auto_now_add=True, blank=True,
+                                            null=True)
 
     class Meta:
         verbose_name = 'Результат'

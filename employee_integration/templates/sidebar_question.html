@@ -16,12 +16,14 @@
             </div>
             {% if is_done %}
                 <div class="h6 text-muted">
-                    {% if is_correct %}
+                    {% if is_correct == 1 %}
                         Решено <span style="color: #16c60c">верно</span>
-                    {% else %}
+                    {% elif is_correct == 0 %}
                         Решено не верно
                     {% endif %}
+                    {% if not question.is_input_question %}
                     <br>Ваш ответ: {{ user_answer }}
+                    {% endif %}
                 </div>
             {% endif %}
         </div>
