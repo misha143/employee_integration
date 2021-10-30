@@ -53,7 +53,7 @@
             {% for q in not_done_quizzes %}
                 {% if not forloop.first %}
                     <div class="card shadow-sm" style="margin-bottom: 1rem">
-                        <img class="card-img-top" src="{{ q.image_url }}" style="width: 100%; height: 12rem; object-fit: cover; filter: brightness(33%);">
+                        <img class="card-img-top" src="{{ q.image_url }}" style="width: 100%; height: 12rem; object-fit: cover; filter: brightness(20%);">
                         <div class="card-body">
                             <h5 class="card-title">{{ q.title }}</h5>
                             <button type="button" class="btn btn-outline-danger" disabled><i class="bi bi-lock-fill"></i> Квест недоступен</button>
