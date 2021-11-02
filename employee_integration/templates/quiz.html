@@ -16,7 +16,7 @@
         {% if user.is_staff %}
 
             <p style="margin-top: 1rem">
-                <a class="btn btn-primary btn-lg btn-block" href="/admin/app/quiz/{{ quiz.pk }}/change/" role="button"><i class="bi bi-brush"></i> Редактировать квест</a>
+                <a class="btn btn-danger btn-lg btn-block" href="/admin/app/quiz/{{ quiz.pk }}/change/" role="button"><i class="bi bi-brush"></i> Редактировать квест</a>
                 <a class="btn btn-danger btn-lg btn-block" href="/admin/app/quiz/{{ quiz.pk }}/delete/" role="button"><i class="bi bi-trash"></i> Удалить квест</a>
             </p>
         {% else %}

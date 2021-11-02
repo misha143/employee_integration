@@ -6,8 +6,8 @@
 
         {% if user.is_staff %}
             <p style="margin-top: 1rem">
-                <a class="btn btn-primary btn-lg btn-block" href="/admin/app/question/{{ pk_question }}/change/" role="button"><i class="bi bi-brush"></i> Редактировать вопрос</a>
-                <a class="btn btn-success btn-lg btn-block" href="/admin/app/result/?question__id__exact={{ pk_question }}" role="button"><i class="bi bi-bar-chart"></i> Результаты вопроса</a>
+                <a class="btn btn-danger btn-lg btn-block" href="/admin/app/question/{{ pk_question }}/change/" role="button"><i class="bi bi-brush"></i> Редактировать вопрос</a>
+                <a class="btn btn-danger btn-lg btn-block" href="/admin/app/result/?question__id__exact={{ pk_question }}" role="button"><i class="bi bi-bar-chart"></i> Результаты вопроса</a>
                 <a class="btn btn-danger btn-lg btn-block" href="/admin/app/question/{{ pk_question }}/delete/" role="button"><i class="bi bi-trash"></i> Удалить вопрос</a>
             </p>
         {% else %}
